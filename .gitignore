@@ -1,0 +1,6 @@
+/.cache
+/libmb_gui_scheduler.a
+/compile_commands.json
+/*.tmp
+/out
+/env.mk
