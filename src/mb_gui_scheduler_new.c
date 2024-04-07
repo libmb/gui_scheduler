@@ -6,17 +6,78 @@
 /*   By: Juyeong Maing <jmaing@student.42seoul.kr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 16:27:20 by Juyeong Maing     #+#    #+#             */
-/*   Updated: 2024/03/30 16:32:36 by Juyeong Maing    ###   ########.fr       */
+/*   Updated: 2024/04/08 02:02:41 by Juyeong Maing    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "internal.h"
 #include "mb_gui_scheduler.h"
 
-t_mb_gui_scheduler	*mb_gui_scheduler_new(size_t thread_count)
+#include <stdlib.h>
+
+#include "internal.h"
+
+#ifdef _WIN32
+
+// TODO: add Windows support
+static t_err	platform_dependent_part(t_mb_gui_scheduler *self)
 {
-	if (!thread_count && mb_gui_scheduler_detect_cpu_count(&thread_count))
-		return (NULL);
-	(void)"// TODO: implement this";
+}
+
+#else
+
+static void	*dummy_thread_routine_wrapper(void *context)
+{
+	mb_gui_scheduler_worker(context);
 	return (NULL);
+}
+
+static t_err	platform_dependent_part(t_mb_gui_scheduler *self)
+{
+	pthread_t *const	arr = malloc(sizeof(pthread_t) * self->thread_count);
+	size_t				i;
+
+	if (!arr)
+		return (true);
+	self->_.threads = arr;
+	if (pthread_mutex_init(&self->_.mutex_job_queue, NULL))
+	{
+		free(arr);
+		return (true);
+	}
+	i = (size_t)-1;
+	while (++i < self->thread_count)
+		if (pthread_create(&arr[i], NULL, dummy_thread_routine_wrapper, self))
+			break ;
+	if (i == self->thread_count)
+		return (false);
+	while (--i != (size_t)(-1))
+		pthread_join(arr[i], NULL);
+	pthread_mutex_destroy(&self->_.mutex_job_queue);
+	return (true);
+}
+
+#endif
+
+t_mb_gui_scheduler	*mb_gui_scheduler_new(
+	size_t thread_count,
+	void *context,
+	t_mb_gui_scheduler_get_job get_job
+)
+{
+	t_mb_gui_scheduler *const	result = malloc(sizeof(t_mb_gui_scheduler));
+
+	if (!thread_count && mb_gui_scheduler_detect_cpu_count(&thread_count))
+	{
+		free(result);
+		return (NULL);
+	}
+	result->thread_count = thread_count;
+	result->context = context;
+	result->get_job = get_job;
+	if (platform_dependent_part(result))
+	{
+		free(result);
+		return (NULL);
+	}
+	return (result);
 }
