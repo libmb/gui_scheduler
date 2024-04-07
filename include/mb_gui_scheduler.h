@@ -6,7 +6,7 @@
 /*   By: Juyeong Maing <jmaing@student.42seoul.kr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 16:17:33 by Juyeong Maing     #+#    #+#             */
-/*   Updated: 2024/04/08 02:50:32 by Juyeong Maing    ###   ########.fr       */
+/*   Updated: 2024/04/08 03:06:28 by Juyeong Maing    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@
 # include "mb_gui_scheduler_type.h"
 
 # include <stddef.h>
-
-typedef struct s_mb_gui_scheduler_mutex	t_mb_gui_scheduler_mutex;
 
 typedef t_err							(*t_mb_gui_scheduler_get_job)(
 											t_mb_gui_scheduler *self,

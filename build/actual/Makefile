@@ -8,7 +8,7 @@ include ../config/include.mk
 SRCS := $(shell sh ../script/get-source.sh)
 OBJS := $(SRCS:.c=.o)
 
-CFLAGS += -I../../include
+CFLAGS += -I../../external_include -I../../include
 
 TARGET := $(NAME)
 

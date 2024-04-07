@@ -6,13 +6,15 @@
 /*   By: Juyeong Maing <jmaing@student.42seoul.kr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 16:27:20 by Juyeong Maing     #+#    #+#             */
-/*   Updated: 2024/04/08 02:02:41 by Juyeong Maing    ###   ########.fr       */
+/*   Updated: 2024/04/08 03:09:48 by Juyeong Maing    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "mb_gui_scheduler.h"
 
 #include <stdlib.h>
+
+#include "mb_mutex.h"
 
 #include "internal.h"
 
@@ -39,11 +41,6 @@ static t_err	platform_dependent_part(t_mb_gui_scheduler *self)
 	if (!arr)
 		return (true);
 	self->_.threads = arr;
-	if (pthread_mutex_init(&self->_.mutex_job_queue, NULL))
-	{
-		free(arr);
-		return (true);
-	}
 	i = (size_t)-1;
 	while (++i < self->thread_count)
 		if (pthread_create(&arr[i], NULL, dummy_thread_routine_wrapper, self))
@@ -52,7 +49,6 @@ static t_err	platform_dependent_part(t_mb_gui_scheduler *self)
 		return (false);
 	while (--i != (size_t)(-1))
 		pthread_join(arr[i], NULL);
-	pthread_mutex_destroy(&self->_.mutex_job_queue);
 	return (true);
 }
 
@@ -74,8 +70,16 @@ t_mb_gui_scheduler	*mb_gui_scheduler_new(
 	result->thread_count = thread_count;
 	result->context = context;
 	result->get_job = get_job;
+	result->job_queue_head = NULL;
+	result->job_queue_tail = NULL;
+	if (mb_mutex_init(&result->mutex_job_queue))
+	{
+		free(result);
+		return (NULL);
+	}
 	if (platform_dependent_part(result))
 	{
+		mb_mutex_destroy(result->mutex_job_queue);
 		free(result);
 		return (NULL);
 	}

@@ -10,6 +10,8 @@
       "-o",
       "/dev/null",
       "-I",
+      "external_include",
+      "-I",
       "include",
       "-Werror",
       "-pedantic",
