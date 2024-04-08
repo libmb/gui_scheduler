@@ -6,7 +6,7 @@
 /*   By: Juyeong Maing <jmaing@student.42seoul.kr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 16:17:33 by Juyeong Maing     #+#    #+#             */
-/*   Updated: 2024/04/08 03:06:28 by Juyeong Maing    ###   ########.fr       */
+/*   Updated: 2024/04/09 01:41:41 by Juyeong Maing    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 
 # include <stddef.h>
 
-typedef t_err							(*t_mb_gui_scheduler_get_job)(
-											t_mb_gui_scheduler *self,
-											void *context);
+typedef t_err	(*t_mb_gui_scheduler_get_job)(
+					t_mb_gui_scheduler *self,
+					void *context);
 
 /**
  * @brief initialize scheduler
@@ -44,20 +44,10 @@ t_err				mb_gui_scheduler_add_job(
 /**
  * @brief clear job queue, and force the scheduler to call get_job callback
  */
-t_err				mb_gui_scheduler_clear_job(t_mb_gui_scheduler *self);
+void				mb_gui_scheduler_clear_job(t_mb_gui_scheduler *self);
 
 /**
- * @brief stop worker, wait for it to finish
- */
-t_err				mb_gui_scheduler_stop_join(t_mb_gui_scheduler *self);
-
-/**
- * @brief stop worker, not wait for it to finish
- */
-t_err				mb_gui_scheduler_stop_detach(t_mb_gui_scheduler *self);
-
-/**
- * @brief stop worker if not stopped (default join), and delete scheduler
+ * @brief stop worker if not stopped (join), and delete scheduler
  */
 void				mb_gui_scheduler_delete(t_mb_gui_scheduler *self);
 

@@ -6,15 +6,13 @@
 /*   By: Juyeong Maing <jmaing@student.42seoul.kr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 16:27:20 by Juyeong Maing     #+#    #+#             */
-/*   Updated: 2024/04/08 03:09:48 by Juyeong Maing    ###   ########.fr       */
+/*   Updated: 2024/04/09 01:44:59 by Juyeong Maing    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "mb_gui_scheduler.h"
 
 #include <stdlib.h>
-
-#include "mb_mutex.h"
 
 #include "internal.h"
 
@@ -62,7 +60,8 @@ t_mb_gui_scheduler	*mb_gui_scheduler_new(
 {
 	t_mb_gui_scheduler *const	result = malloc(sizeof(t_mb_gui_scheduler));
 
-	if (!thread_count && mb_gui_scheduler_detect_cpu_count(&thread_count))
+	if ((!thread_count && mb_gui_scheduler_detect_cpu_count(&thread_count))
+		|| mb_gui_scheduler_new_internal(result))
 	{
 		free(result);
 		return (NULL);
@@ -72,14 +71,11 @@ t_mb_gui_scheduler	*mb_gui_scheduler_new(
 	result->get_job = get_job;
 	result->job_queue_head = NULL;
 	result->job_queue_tail = NULL;
-	if (mb_mutex_init(&result->mutex_job_queue))
-	{
-		free(result);
-		return (NULL);
-	}
+	result->is_error = false;
+	result->is_stopped = false;
 	if (platform_dependent_part(result))
 	{
-		mb_mutex_destroy(result->mutex_job_queue);
+		mb_gui_scheduler_new_internal_delete(result);
 		free(result);
 		return (NULL);
 	}

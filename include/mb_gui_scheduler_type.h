@@ -6,7 +6,7 @@
 /*   By: Juyeong Maing <jmaing@student.42seoul.kr>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/30 16:07:50 by Juyeong Maing     #+#    #+#             */
-/*   Updated: 2024/04/08 02:10:53 by Juyeong Maing    ###   ########.fr       */
+/*   Updated: 2024/04/09 00:53:07 by Juyeong Maing    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ typedef struct s_mb_gui_scheduler_job
 {
 	t_mb_gui_scheduler_job_func	func;
 	void						*context;
+	void						(*free_context)(void *context);
 }	t_mb_gui_scheduler_job;
 
 #endif
